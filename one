@@ -1,0 +1,7 @@
+POST   /api/companies
+GET    /api/companies
+GET    /api/companies/:id
+
+POST   /api/reviews/:companyId
+GET    /api/reviews/:companyId
+PATCH  /api/reviews/like/:reviewId
