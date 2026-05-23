@@ -1,0 +1,25 @@
+import type { Metadata } from "next";
+import "./globals.css";
+
+import QueryProvider from "@/providers/QueryProvider";
+
+export const metadata: Metadata = {
+  title: "Review & Rate",
+  description: "Company Review Platform",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className="bg-[#f7f7f7]">
+        <QueryProvider>
+          {children}
+        </QueryProvider>
+      </body>
+    </html>
+  );
+}
