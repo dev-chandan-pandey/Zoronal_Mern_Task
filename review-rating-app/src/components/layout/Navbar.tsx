@@ -31,7 +31,8 @@ export default function Navbar() {
         </div>
 
         {/* Nav */}
-        <div className="flex items-center gap-6 text-sm">
+        {/* <div className="flex items-center gap-6 text-sm"> */}
+        <div className="relative hidden lg:block">
           <button className="hover:text-purple-600">
             SignUp
           </button>

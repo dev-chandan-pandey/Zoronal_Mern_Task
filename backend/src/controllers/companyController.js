@@ -1,12 +1,33 @@
 const Company = require("../models/Company");
 
+// exports.createCompany = async (req, res) => {
+//   try {
+//     const company = await Company.create(req.body);
+
+//     res.status(201).json({
+//       success: true,
+//       data: company,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
 exports.createCompany = async (req, res) => {
   try {
-    const company = await Company.create(req.body);
+    const company = await Company.create({
+      ...req.body,
+
+      logo: req.file?.path || "",
+    });
 
     res.status(201).json({
       success: true,
       data: company,
+      
     });
   } catch (error) {
     res.status(500).json({
@@ -40,19 +61,37 @@ exports.getCompanies = async (req, res) => {
       sortOption.createdAt = -1;
     }
 
+    // const companies = await Company.find(query)
+    //   .sort(sortOption)
+    //   .skip((page - 1) * limit)
+    //   .limit(Number(limit));
+
+    // const total = await Company.countDocuments(query);
+    const skip = (page - 1) * limit;
+
     const companies = await Company.find(query)
       .sort(sortOption)
-      .skip((page - 1) * limit)
+      .skip(skip)
       .limit(Number(limit));
 
     const total = await Company.countDocuments(query);
 
+    const totalPages = Math.ceil(total / limit);
+
+    // res.status(200).json({
+    //   success: true,
+    //   total,
+    //   page: Number(page),
+    //   data: companies,
+    // });
     res.status(200).json({
       success: true,
       total,
-      page: Number(page),
+      totalPages,
+      currentPage: Number(page),
       data: companies,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,

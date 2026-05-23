@@ -105,21 +105,30 @@
 "use client";
 
 import { useState } from "react";
-
+import { useDebounce } from "use-debounce";
 import Navbar from "@/components/layout/Navbar";
 import AddCompanyModal from "@/components/company/AddCompanyModal";
 import Link from "next/link";
 import { useCompanies } from "@/hooks/useCompanies";
+import CompanyCardSkeleton from "@/components/shared/CompanyCardSkeleton";
+import { motion } from "framer-motion";
 
 export default function HomePage() {
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [debouncedSearch] = useDebounce(search, 500);
   const [sort, setSort] = useState("latest");
-
-  const { data, isLoading } = useCompanies(
-    search,
-    sort
-  );
-
+  // const { data, isLoading } = useCompanies(
+  //   search,
+  //   sort
+  // );
+  // const { data, isLoading } = useCompanies(debouncedSearch, sort);
+  const { data, isLoading } =
+    useCompanies(
+      debouncedSearch,
+      sort,
+      page
+    );
   return (
     <main>
       <Navbar />
@@ -163,48 +172,89 @@ export default function HomePage() {
           </div>
 
           {isLoading ? (
-            <p>Loading...</p>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((item) => (
+                <CompanyCardSkeleton key={item} />
+              ))}
+            </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
               {data?.data?.map((company: any) => (
-                <Link
-                  href={`/company/${company._id}`}
+                <motion.div
                   key={company._id}
+                  initial={{
+                    opacity: 0,
+                    y: 20,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    duration: 0.3,
+                  }}
                 >
-                  <div className="rounded-lg border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                  <Link href={`/company/${company._id}`}>
+                    <div className="rounded-lg border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
 
-                    <h2 className="mb-2 text-xl font-semibold">
-                      {company.name}
-                    </h2>
+                      <h2 className="mb-2 text-xl font-semibold">
+                        {company.name}
+                      </h2>
 
-                    <p className="mb-3 text-sm text-gray-500">
-                      {company.location}
-                    </p>
+                      <p className="mb-3 text-sm text-gray-500">
+                        {company.location}
+                      </p>
 
-                    <p className="mb-4 text-sm text-gray-700">
-                      {company.description}
-                    </p>
+                      <p className="mb-4 text-sm text-gray-700">
+                        {company.description}
+                      </p>
 
-                    <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between">
 
-                      <span className="text-sm font-medium">
-                        ⭐ {company.averageRating.toFixed(1)}
-                      </span>
+                        <span className="text-sm font-medium">
+                          ⭐ {company.averageRating.toFixed(1)}
+                        </span>
 
-                      <span className="text-sm text-gray-500">
-                        {company.reviewCount} Reviews
-                      </span>
+                        <span className="text-sm text-gray-500">
+                          {company.reviewCount} Reviews
+                        </span>
+
+                      </div>
 
                     </div>
-
-                  </div>
-                </Link>
+                  </Link>
+                </motion.div>
               ))}
 
             </div>
-          )}
 
+          )}
+          <div className="mt-10 flex items-center justify-center gap-3">
+
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((prev) => prev - 1)}
+              className="rounded border px-4 py-2 disabled:opacity-50"
+            >
+              Previous
+            </button>
+
+            <span className="text-sm font-medium">
+              Page {page}
+            </span>
+
+            <button
+              disabled={
+                page === data?.totalPages
+              }
+              onClick={() => setPage((prev) => prev + 1)}
+              className="rounded border px-4 py-2 disabled:opacity-50"
+            >
+              Next
+            </button>
+
+          </div>
         </div>
       </section>
     </main>
